@@ -63,5 +63,5 @@ type UserToken struct {
 
 type UserClaims struct {
 	Id     string `db:"id" json:"id"`
-	RoleId string `db:"role" json:"role"`
+	RoleId int    `db:"role" json:"role"`
 }
