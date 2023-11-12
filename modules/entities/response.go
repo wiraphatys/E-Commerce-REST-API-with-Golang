@@ -1,0 +1,58 @@
+package entities
+
+import (
+	"github.com/gofiber/fiber/v2"
+	"github.com/wiraphatys/E-Commerce-REST-API-with-Golang/pkg/shoplogger"
+)
+
+type IResponse interface {
+	Success(code int, data any) IResponse
+	Error(code int, traceId, msg string) IResponse
+	Res() error
+}
+
+type Response struct {
+	StatusCode int
+	Data       any
+	ErrorRes   *ErrorResponse
+	Context    *fiber.Ctx
+	IsError    bool
+}
+
+type ErrorResponse struct {
+	TraceID string `json:"trace_id"`
+	Msg     string `json:"message"`
+}
+
+func NewResponse(c *fiber.Ctx) IResponse {
+	return &Response{
+		Context: c,
+	}
+}
+
+func (r *Response) Success(code int, data any) IResponse {
+	r.StatusCode = code
+	r.Data = data
+	shoplogger.InitShopLogger(r.Context, &r.Data).Print().Save()
+	return r
+}
+
+func (r *Response) Error(code int, traceId, msg string) IResponse {
+	r.StatusCode = code
+	r.ErrorRes = &ErrorResponse{
+		TraceID: traceId,
+		Msg:     msg,
+	}
+	r.IsError = true
+	shoplogger.InitShopLogger(r.Context, &r.ErrorRes).Print().Save()
+	return r
+}
+
+func (r *Response) Res() error {
+	return r.Context.Status(r.StatusCode).JSON(func() any {
+		if r.IsError {
+			return &r.ErrorRes
+		}
+		return &r.Data
+	}())
+}

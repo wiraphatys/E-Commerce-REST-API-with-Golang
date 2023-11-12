@@ -1,10 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/wiraphatys/E-Commerce-REST-API-with-Golang/config"
+	"github.com/wiraphatys/E-Commerce-REST-API-with-Golang/modules/servers"
+	"github.com/wiraphatys/E-Commerce-REST-API-with-Golang/pkg/databases"
 )
 
 func envPath() string {
@@ -17,5 +18,9 @@ func envPath() string {
 
 func main() {
 	cfg := config.LoadConfig(envPath())
-	fmt.Println(cfg.App())
+
+	db := databases.DbConnect(cfg.Db())
+	defer db.Close()
+
+	servers.NewServer(cfg, db).Start()
 }
