@@ -9,5 +9,5 @@ This is REST API E-Commerce project build with Golang
 - Postman
 
 ## Database Schema Design
-![alt text](https://ibb.co/R07BZ3Q)
-![alt text](http://url/to/img.png)
+![Sample Image](https://example.com/image.png](https://i.ibb.co/Fwn0N58/bankyy-Shop.png)https://i.ibb.co/Fwn0N58/bankyy-Shop.png)
+
