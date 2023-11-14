@@ -54,4 +54,12 @@ func (m *moduleFactory) UsersModule() {
 	router.Post("/signin", handler.SignIn)
 	router.Post("/refresh", handler.RefreshPassport)
 	router.Post("/signout", handler.SignOut)
+	router.Post("/signup-admin", handler.SignOut)
+
+	router.Get("/:user_id", m.mid.JwtAuth(), m.mid.ParamsCheck(), handler.GetUserProfile)
+	router.Get("/admin/secret", m.mid.JwtAuth(), m.mid.Authorize(2), handler.GenerateAdminToken)
+
+	// initial admin 1 person in database (INSERT SQL)
+	// Generate Admin Key
+	// everytime that you want to create new Admin account, you need to send Admin token via middleware
 }
