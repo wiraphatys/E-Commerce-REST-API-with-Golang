@@ -10,3 +10,4 @@ This is REST API E-Commerce project build with Golang
 
 ## Database Schema Design
 ![alt text](https://ibb.co/R07BZ3Q)
+![alt text](http://url/to/img.png)
