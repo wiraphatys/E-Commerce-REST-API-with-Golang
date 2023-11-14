@@ -1,5 +1,6 @@
 # E-COMMERCE Restful API with Golang Project
-This is REST API E-Commerce project build with Golang
+
+This is a REST API E-Commerce project built with Golang.
 
 ## Tech Stack
 - Golang
@@ -9,5 +10,4 @@ This is REST API E-Commerce project build with Golang
 - Postman
 
 ## Database Schema Design
-![Sample Image](https://example.com/image.png](https://i.ibb.co/Fwn0N58/bankyy-Shop.png)https://i.ibb.co/Fwn0N58/bankyy-Shop.png)
-
+![Database Schema Design](https://i.ibb.co/Fwn0N58/bankyy-Shop.png)
