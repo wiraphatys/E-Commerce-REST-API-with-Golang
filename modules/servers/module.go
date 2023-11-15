@@ -18,6 +18,7 @@ type IModuleFactory interface {
 	MonitorModule()
 	UsersModule()
 	AppinfoModule()
+	FilesModule() IFilesModule
 }
 
 type moduleFactory struct {
