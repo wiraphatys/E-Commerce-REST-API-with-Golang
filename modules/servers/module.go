@@ -2,6 +2,9 @@ package servers
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/wiraphatys/E-Commerce-REST-API-with-Golang/modules/appinfo/appinfoHandlers"
+	"github.com/wiraphatys/E-Commerce-REST-API-with-Golang/modules/appinfo/appinfoRepositories"
+	"github.com/wiraphatys/E-Commerce-REST-API-with-Golang/modules/appinfo/appinfoUsecases"
 	"github.com/wiraphatys/E-Commerce-REST-API-with-Golang/modules/middlewares/middlewaresHandlers"
 	"github.com/wiraphatys/E-Commerce-REST-API-with-Golang/modules/middlewares/middlewaresRepositories"
 	"github.com/wiraphatys/E-Commerce-REST-API-with-Golang/modules/middlewares/middlewaresUsecases"
@@ -14,6 +17,7 @@ import (
 type IModuleFactory interface {
 	MonitorModule()
 	UsersModule()
+	AppinfoModule()
 }
 
 type moduleFactory struct {
@@ -50,11 +54,11 @@ func (m *moduleFactory) UsersModule() {
 
 	router := m.r.Group("/users")
 
-	router.Post("/signup", handler.SignUpCustomer)
-	router.Post("/signin", handler.SignIn)
-	router.Post("/refresh", handler.RefreshPassport)
-	router.Post("/signout", handler.SignOut)
-	router.Post("/signup-admin", handler.SignOut)
+	router.Post("/signup", m.mid.ApiKeyAuth(), handler.SignUpCustomer)
+	router.Post("/signin", m.mid.ApiKeyAuth(), handler.SignIn)
+	router.Post("/refresh", m.mid.ApiKeyAuth(), handler.RefreshPassport)
+	router.Post("/signout", m.mid.ApiKeyAuth(), handler.SignOut)
+	router.Post("/signup-admin", m.mid.JwtAuth(), m.mid.Authorize(2), handler.SignOut)
 
 	router.Get("/:user_id", m.mid.JwtAuth(), m.mid.ParamsCheck(), handler.GetUserProfile)
 	router.Get("/admin/secret", m.mid.JwtAuth(), m.mid.Authorize(2), handler.GenerateAdminToken)
@@ -62,4 +66,19 @@ func (m *moduleFactory) UsersModule() {
 	// initial admin 1 person in database (INSERT SQL)
 	// Generate Admin Key
 	// everytime that you want to create new Admin account, you need to send Admin token via middleware
+}
+
+func (m *moduleFactory) AppinfoModule() {
+	repository := appinfoRepositories.AppinfoRepository(m.s.db)
+	usecase := appinfoUsecases.AppinfoUsecase(repository)
+	handler := appinfoHandlers.AppinfoHandler(m.s.cfg, usecase)
+
+	router := m.r.Group("/appinfo")
+
+	router.Post("/categories", m.mid.JwtAuth(), m.mid.Authorize(2), handler.AddCategory)
+
+	router.Get("/categories", m.mid.ApiKeyAuth(), handler.FindCategory)
+	router.Get("/apikey", m.mid.JwtAuth(), m.mid.Authorize(2), handler.GenerateApiKey)
+
+	router.Delete("/:category_id/categories", m.mid.JwtAuth(), m.mid.Authorize(2), handler.RemoveCategory)
 }
