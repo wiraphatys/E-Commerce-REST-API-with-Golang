@@ -19,6 +19,8 @@ type IModuleFactory interface {
 	UsersModule()
 	AppinfoModule()
 	FilesModule() IFilesModule
+	ProductsModule() IProductsModule
+	OrdersModule()
 }
 
 type moduleFactory struct {
@@ -82,4 +84,19 @@ func (m *moduleFactory) AppinfoModule() {
 	router.Get("/apikey", m.mid.JwtAuth(), m.mid.Authorize(2), handler.GenerateApiKey)
 
 	router.Delete("/:category_id/categories", m.mid.JwtAuth(), m.mid.Authorize(2), handler.RemoveCategory)
+}
+
+func (m *moduleFactory) OrdersModule() {
+	ordersRepository := ordersRepositories.OrdersRepository(m.s.db)
+	ordersUsecase := ordersUsecases.OrdersUsecase(ordersRepository, m.ProductsModule().Repository())
+	ordersHandler := ordersHandlers.OrdersHandler(m.s.cfg, ordersUsecase)
+
+	router := m.r.Group("/orders")
+
+	router.Post("/", m.mid.JwtAuth(), ordersHandler.InsertOrder)
+
+	router.Get("/", m.mid.JwtAuth(), m.mid.Authorize(2), ordersHandler.FindOrder)
+	router.Get("/:user_id/:order_id", m.mid.JwtAuth(), m.mid.ParamsCheck(), ordersHandler.FindOneOrder)
+
+	router.Patch("/:user_id/:order_id", m.mid.JwtAuth(), m.mid.ParamsCheck(), ordersHandler.UpdateOrder)
 }
